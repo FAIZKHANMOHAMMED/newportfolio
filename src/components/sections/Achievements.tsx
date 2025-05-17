@@ -1,82 +1,16 @@
 
 import React from 'react';
 import { Award, FileCheck, Calendar, Building } from 'lucide-react';
-import SectionAnimation from '@/components/animations/SectionAnimation';
+import ScrollAnimationWrapper from '@/components/animations/ScrollAnimationWrapper';
 import AnimatedText from '@/components/ui/AnimatedText';
 import AnimatedCard from '@/components/ui/AnimatedCard';
 import DynamicBackground from '@/components/ui/DynamicBackground';
-
-interface Achievement {
-  title: string;
-  issuer?: string;
-  date: string;
-  description: string;
-  type: 'certification' | 'achievement';
-}
+import { achievements as achievementData } from '@/data/Achievements';
 
 const Achievements = () => {
-  const items: Achievement[] = [
-    {
-      title: "AWS Certified Solutions Architect",
-      issuer: "Amazon Web Services",
-      date: "December 2022",
-      description: "Professional certification validating expertise in designing distributed applications and systems on AWS. Demonstrated proficiency in deploying scalable, highly available, and fault-tolerant systems.",
-      type: "certification"
-    },
-    {
-      title: "1st Place - TechInnovate Hackathon 2023",
-      issuer: "TechInnovate Foundation",
-      date: "May 2023",
-      description: "Led a team of 4 developers to create 'AccessVision' - an AI-powered accessibility tool for visually impaired users, winning first place among 120 teams. The solution is now being developed into a full product.",
-      type: "achievement"
-    },
-    {
-      title: "Google Cloud Professional Developer",
-      issuer: "Google",
-      date: "March 2022",
-      description: "Certification for designing, building, and managing applications on Google Cloud Platform. Specialized in serverless architecture and microservices deployment.",
-      type: "certification"
-    },
-    {
-      title: "Open Source Contributor Award",
-      issuer: "GitHub",
-      date: "January 2023",
-      description: "Recognized for significant contributions to various open-source projects, including React ecosystem tools and accessibility libraries. Contributed over 200 pull requests and maintained 3 popular libraries with 10k+ stars.",
-      type: "achievement"
-    },
-    {
-      title: "Advanced React & GraphQL Certification",
-      issuer: "Frontend Masters",
-      date: "October 2022",
-      description: "Completed intensive course on advanced React patterns, GraphQL, and state management. Created a full-stack e-commerce application as the capstone project.",
-      type: "certification"
-    },
-    {
-      title: "Best UI/UX Design Award",
-      issuer: "DesignCon 2023",
-      date: "August 2023",
-      description: "Received award for exceptional UI/UX design in the financial technology category. The design focused on accessibility, intuitive navigation, and visual aesthetics for a banking application.",
-      type: "achievement"
-    },
-    {
-      title: "MongoDB Certified Developer",
-      issuer: "MongoDB University",
-      date: "April 2022",
-      description: "Certification validating expertise in MongoDB database design, query optimization, and application development using MongoDB's document data model.",
-      type: "certification"
-    },
-    {
-      title: "Featured Speaker - ReactConf",
-      issuer: "React Community",
-      date: "November 2022",
-      description: "Selected as a featured speaker at ReactConf 2022. Presented on 'Building Accessible and Performant React Applications' to an audience of 500+ developers.",
-      type: "achievement"
-    }
-  ];
-
   // Separate certifications and achievements
-  const certifications = items.filter(item => item.type === 'certification');
-  const achievements = items.filter(item => item.type === 'achievement');
+  const certifications = achievementData.filter(item => item.type === 'certification');
+  const achievements = achievementData.filter(item => item.type === 'achievement');
 
   return (
     <section id="achievements" className="section-container relative overflow-hidden">
@@ -87,14 +21,14 @@ const Achievements = () => {
         <div className="absolute top-1/3 right-1/3 w-64 h-64 bg-accent-purple/15 rounded-full filter blur-3xl"></div>
       </div>
       
-      <SectionAnimation animation="fade-up">
+      <ScrollAnimationWrapper animation="fade-up">
         <AnimatedText effect="gradient" as="h2" className="section-title">
           <span className="text-highlight font-mono mr-2">Achievements & Certifications</span> 
         </AnimatedText>
-      </SectionAnimation>
+      </ScrollAnimationWrapper>
 
-      <div className="grid md:grid-cols-2 gap-10">
-        <SectionAnimation animation="fade-right" delay={200}>
+      <div className="grid md:grid-cols-2 gap-10 mt-12">
+        <ScrollAnimationWrapper animation="fade-right" delay={200}>
           <div className="flex items-center mb-6 group hover:translate-y-[-2px] transition-transform duration-300">
             <div className="p-2 rounded-full bg-highlight/10 mr-3 group-hover:bg-highlight/20 group-hover:shadow-md group-hover:shadow-highlight/10 transition-all duration-300 transform group-hover:scale-110">
               <Award className="text-highlight h-6 w-6 group-hover:animate-pulse-slow" />
@@ -106,8 +40,8 @@ const Achievements = () => {
           </div>
           <div className="space-y-5">
             {achievements.map((item, index) => (
-              <SectionAnimation
-                key={index}
+              <ScrollAnimationWrapper
+                key={item.id}
                 animation="fade-up"
                 delay={300 + (index * 100)}
               >
@@ -131,12 +65,12 @@ const Achievements = () => {
                     </div>
                   </div>
                 </AnimatedCard>
-              </SectionAnimation>
+              </ScrollAnimationWrapper>
             ))}
           </div>
-        </SectionAnimation>
+        </ScrollAnimationWrapper>
         
-        <SectionAnimation animation="fade-left" delay={300}>
+        <ScrollAnimationWrapper animation="fade-left" delay={300}>
           <div className="flex items-center mb-6 group hover:translate-y-[-2px] transition-transform duration-300">
             <div className="p-2 rounded-full bg-highlight/10 mr-3 group-hover:bg-highlight/20 group-hover:shadow-md group-hover:shadow-highlight/10 transition-all duration-300 transform group-hover:scale-110">
               <FileCheck className="text-highlight h-6 w-6 group-hover:animate-pulse-slow" />
@@ -148,8 +82,8 @@ const Achievements = () => {
           </div>
           <div className="space-y-5">
             {certifications.map((item, index) => (
-              <SectionAnimation
-                key={index}
+              <ScrollAnimationWrapper
+                key={item.id}
                 animation="fade-up"
                 delay={400 + (index * 100)}
               >
@@ -182,10 +116,10 @@ const Achievements = () => {
                     </div>
                   </div>
                 </AnimatedCard>
-              </SectionAnimation>
+              </ScrollAnimationWrapper>
             ))}
           </div>
-        </SectionAnimation>
+        </ScrollAnimationWrapper>
       </div>
     </section>
   );

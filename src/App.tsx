@@ -33,7 +33,13 @@ const App = () => {
       <ThemeProvider>
         <TooltipProvider>
           {/* Molecule background animation across the entire site */}
-          <MoleculeBackground nodeCount={70} opacity={0.25} />
+          <MoleculeBackground 
+            nodeCount={50} 
+            opacity={0.25} 
+            colorful={true} 
+            speed={0.7}
+            particleBursts={true}
+          />
           
           <LoadingScreen onLoadingComplete={() => setIsLoading(false)} />
           <div className={`transition-opacity duration-500 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>

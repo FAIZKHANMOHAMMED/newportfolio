@@ -1,73 +1,37 @@
-
 import React, { useState, useEffect } from 'react';
-import { ExternalLink, Github } from 'lucide-react';
-import SectionAnimation from '@/components/animations/SectionAnimation';
+import { ExternalLink, Github, Filter } from 'lucide-react';
+import ScrollAnimationWrapper from '@/components/animations/ScrollAnimationWrapper';
 import AnimatedCard from '@/components/ui/AnimatedCard';
 import AnimatedButton from '@/components/ui/AnimatedButton';
 import AnimatedText from '@/components/ui/AnimatedText';
 import DynamicBackground from '@/components/ui/DynamicBackground';
-
-interface Project {
-  title: string;
-  description: string;
-  tech: string[];
-  github: string;
-  demo?: string;
-  image: string;
-}
+import { projects, getAllYears, getAllCategories } from '@/data/Projects';
 
 const Projects = () => {
-  const projects: Project[] = [
-    {
-      title: "CreativeAI Studio",
-      description: "An advanced AI-powered content creation platform that generates high-quality blog posts, marketing copy, and social media content with customizable tone and style preferences. Features include content scheduling, SEO optimization, and multi-platform publishing.",
-      tech: ["React", "TypeScript", "Node.js", "Express", "OpenAI API", "MongoDB", "Tailwind CSS", "Redux"],
-      github: "https://github.com/FAIZKHANMOHAMMED/creative-ai-studio",
-      demo: "https://creative-ai-studio.vercel.app",
-      image: "/images/projects/creative-ai.jpg"
-    },
-    {
-      title: "E-Commerce Analytics Dashboard",
-      description: "A comprehensive analytics dashboard for e-commerce businesses that provides real-time insights into sales performance, inventory management, customer behavior, and marketing campaign effectiveness. Includes customizable widgets and exportable reports.",
-      tech: ["Next.js", "TypeScript", "GraphQL", "MongoDB", "Recharts", "Tailwind CSS", "Auth0", "Stripe API"],
-      github: "https://github.com/FAIZKHANMOHAMMED/ecommerce-analytics",
-      demo: "https://ecommerce-analytics-dashboard.vercel.app",
-      image: "/images/projects/ecommerce-dashboard.jpg"
-    },
-    {
-      title: "CollabSpace",
-      description: "A feature-rich real-time collaboration platform that combines messaging, file sharing, and project management tools. Includes video conferencing, screen sharing, kanban boards, and integrated calendar. Designed for remote teams and cross-functional collaboration.",
-      tech: ["React", "Socket.io", "Express", "PostgreSQL", "Redis", "WebRTC", "Firebase", "Styled Components"],
-      github: "https://github.com/FAIZKHANMOHAMMED/collab-space",
-      demo: "https://collab-space.netlify.app",
-      image: "/images/projects/collab-space.jpg"
-    },
-    {
-      title: "FinTrack Pro",
-      description: "A comprehensive personal finance management application that helps users track expenses, set and monitor budgets, analyze spending patterns, and plan for financial goals. Features include bank account integration, receipt scanning, and customizable reports.",
-      tech: ["React Native", "TypeScript", "Firebase", "Chart.js", "Plaid API", "Redux", "Jest"],
-      github: "https://github.com/FAIZKHANMOHAMMED/fintrack-pro",
-      image: "/images/projects/fintrack-pro.jpg"
-    },
-    {
-      title: "HealthHub",
-      description: "A holistic health and wellness platform that combines fitness tracking, nutrition planning, and mental wellbeing features. Includes workout routines, meal planning, meditation guides, and progress tracking with detailed analytics and personalized recommendations.",
-      tech: ["React", "Node.js", "MongoDB", "Express", "TensorFlow.js", "PWA", "Tailwind CSS", "Jest"],
-      github: "https://github.com/FAIZKHANMOHAMMED/health-hub",
-      demo: "https://health-hub-wellness.vercel.app",
-      image: "/images/projects/health-hub.jpg"
-    },
-    {
-      title: "DevPortal",
-      description: "A developer-focused knowledge sharing platform with integrated documentation tools, code snippet library, and community forums. Features include syntax highlighting, version control integration, and an interactive playground for testing code examples.",
-      tech: ["Vue.js", "TypeScript", "Node.js", "PostgreSQL", "GraphQL", "Docker", "Algolia", "Markdown"],
-      github: "https://github.com/FAIZKHANMOHAMMED/dev-portal",
-      image: "/images/projects/dev-portal.jpg"
-    }
-  ];
+  // State for filters
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  
+  // Get all available years and categories for filters
+  const years = getAllYears();
+  const categories = getAllCategories();
+  
+  // Filter projects based on selected filters
+  const filteredProjects = projects.filter(project => {
+    const yearMatch = selectedYear ? project.year === selectedYear : true;
+    const categoryMatch = selectedCategory ? project.category === selectedCategory : true;
+    return yearMatch && categoryMatch;
+  });
 
   // State for reveal animations
   const [revealed, setRevealed] = useState(false);
+
+  // Reset filters
+  const resetFilters = () => {
+    setSelectedYear(null);
+    setSelectedCategory(null);
+  };
   
   // Trigger reveal animation when component mounts
   useEffect(() => {
@@ -87,15 +51,83 @@ const Projects = () => {
         <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-highlight/20 rounded-full filter blur-3xl"></div>
       </div>
       
-      <SectionAnimation animation="fade-up">
+      <ScrollAnimationWrapper animation="fade-up" threshold={0.1}>
         <AnimatedText effect="gradient" as="h2" className="section-title">
           <span className="text-highlight font-mono mr-2">Some Things I've Built</span> 
         </AnimatedText>
-      </SectionAnimation>
+        
+        <div className="flex flex-col items-center justify-center mt-8 mb-12">
+          <AnimatedButton 
+            onClick={() => setShowFilters(!showFilters)}
+            variant="outline"
+            size="sm"
+            icon={<Filter size={16} />}
+            iconPosition="left"
+            className="mb-4"
+          >
+            {showFilters ? 'Hide Filters' : 'Show Filters'}
+          </AnimatedButton>
+          
+          {showFilters && (
+            <div className="bg-navy-light/70 glass-effect p-6 rounded-lg w-full max-w-2xl mx-auto mb-4 animate-fadeIn">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h4 className="text-slate-light text-sm mb-2 font-medium">Filter by Year</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {years.map(year => (
+                      <button
+                        key={year}
+                        onClick={() => setSelectedYear(selectedYear === year ? null : year)}
+                        className={`px-3 py-1 text-xs rounded-full transition-all ${selectedYear === year 
+                          ? 'bg-highlight text-navy-dark font-medium' 
+                          : 'bg-navy-dark text-slate hover:bg-navy-dark/80'}`}
+                      >
+                        {year}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                
+                <div>
+                  <h4 className="text-slate-light text-sm mb-2 font-medium">Filter by Category</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {categories.map(category => (
+                      <button
+                        key={category}
+                        onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
+                        className={`px-3 py-1 text-xs rounded-full transition-all ${selectedCategory === category 
+                          ? 'bg-highlight text-navy-dark font-medium' 
+                          : 'bg-navy-dark text-slate hover:bg-navy-dark/80'}`}
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
+              {(selectedYear || selectedCategory) && (
+                <button
+                  onClick={resetFilters}
+                  className="mt-4 text-xs text-highlight hover:text-highlight/80 underline underline-offset-2"
+                >
+                  Reset Filters
+                </button>
+              )}
+            </div>
+          )}
+          
+          <div className="text-sm text-slate/70">
+            Showing {filteredProjects.length} {filteredProjects.length === 1 ? 'project' : 'projects'}
+            {selectedYear && ` from ${selectedYear}`}
+            {selectedCategory && ` in ${selectedCategory}`}
+          </div>
+        </div>
+      </ScrollAnimationWrapper>
       
       <div className="space-y-32">
-        {projects.map((project, index) => (
-          <SectionAnimation 
+        {filteredProjects.length > 0 ? filteredProjects.map((project, index) => (
+          <ScrollAnimationWrapper 
             key={index}
             animation="fade-up"
             delay={200 + (index * 150)}
@@ -111,13 +143,9 @@ const Projects = () => {
                   index % 2 === 0 ? 'md:col-start-6' : 'md:col-start-1 order-first'
                 }`}
               >
-                <div
-                  className="relative transform transition-all duration-1000 ease-in-out"
-                  style={{
-                    transform: revealed ? 'translateX(0)' : index % 2 === 0 ? 'translateX(100px)' : 'translateX(-100px)',
-                    opacity: revealed ? 1 : 0,
-                    transitionDelay: `${300 + (index * 200)}ms`
-                  }}
+                <ScrollAnimationWrapper
+                  animation={index % 2 === 0 ? 'fade-left' : 'fade-right'}
+                  delay={300 + (index * 200)}
                 >
                   <AnimatedCard className="relative overflow-hidden rounded-xl group shadow-md hover:shadow-xl transition-all duration-500" hoverEffect="scale">
                     <div className="aspect-video relative overflow-hidden">
@@ -126,7 +154,7 @@ const Projects = () => {
                         alt={project.title} 
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-tr from-navy/90 to-navy/70 group-hover:from-navy/60 group-hover:to-navy/40 transition-all duration-500"></div>
+                      <div className="absolute inset-0 bg-gradient-to-tr from-navy/90 to-navy/70 group-hover:from-transparent group-hover:to-transparent transition-all duration-500"></div>
                       
                       {/* Animated border on hover */}
                       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
@@ -158,7 +186,7 @@ const Projects = () => {
                       </div>
                     </div>
                   </AnimatedCard>
-                </div>
+                </ScrollAnimationWrapper>
               </div>
               
               {/* Project Content */}
@@ -167,40 +195,28 @@ const Projects = () => {
                   index % 2 === 0 ? 'md:col-start-1 md:text-left' : 'md:col-start-7 md:text-right'
                 }`}
               >
-                <div
-                  className="transform transition-all duration-700 ease-out"
-                  style={{
-                    transform: revealed ? 'translateY(0)' : 'translateY(20px)',
-                    opacity: revealed ? 1 : 0,
-                    transitionDelay: `${200 + (index * 150)}ms`
-                  }}
+                <ScrollAnimationWrapper
+                  animation="fade-up"
+                  delay={200 + (index * 150)}
                 >
                   <p className="font-mono text-highlight text-sm mb-2">Featured Project</p>
                   <h3 className="text-2xl font-bold text-slate-light mb-4">
                     {project.title}
                   </h3>
-                </div>
+                </ScrollAnimationWrapper>
                 
-                <div
-                  className="transform transition-all duration-700 ease-out"
-                  style={{
-                    transform: revealed ? 'translateY(0)' : 'translateY(30px)',
-                    opacity: revealed ? 1 : 0,
-                    transitionDelay: `${400 + (index * 150)}ms`
-                  }}
+                <ScrollAnimationWrapper
+                  animation="fade-up"
+                  delay={400 + (index * 150)}
                 >
                   <AnimatedCard className="bg-navy-light/70 glass-effect mb-5 p-6" hoverEffect="glow">
                     <p className="text-slate/90">{project.description}</p>
                   </AnimatedCard>
-                </div>
+                </ScrollAnimationWrapper>
                 
-                <div
-                  className="transform transition-all duration-700 ease-out"
-                  style={{
-                    transform: revealed ? 'translateY(0)' : 'translateY(40px)',
-                    opacity: revealed ? 1 : 0,
-                    transitionDelay: `${500 + (index * 150)}ms`
-                  }}
+                <ScrollAnimationWrapper
+                  animation="fade-up"
+                  delay={500 + (index * 150)}
                 >
                   <ul className={`flex flex-wrap text-xs font-mono mb-6 gap-3 text-slate ${
                     index % 2 === 0 ? '' : 'md:justify-end'
@@ -219,18 +235,14 @@ const Projects = () => {
                       </li>
                     ))}
                   </ul>
-                </div>
+                </ScrollAnimationWrapper>
                 
-                <div 
+                <ScrollAnimationWrapper
+                  animation="fade-up"
+                  delay={600 + (index * 150)}
                   className={`flex gap-4 ${
                     index % 2 === 0 ? '' : 'md:justify-end'
                   }`}
-                  style={{
-                    transform: revealed ? 'translateY(0)' : 'translateY(50px)',
-                    opacity: revealed ? 1 : 0,
-                    transition: 'transform 0.7s ease-out, opacity 0.7s ease-out',
-                    transitionDelay: `${600 + (index * 150)}ms`
-                  }}
                 >
                   <AnimatedButton 
                     href={project.github}
@@ -259,11 +271,25 @@ const Projects = () => {
                       Demo
                     </AnimatedButton>
                   )}
-                </div>
+                </ScrollAnimationWrapper>
               </div>
             </div>
-          </SectionAnimation>
-        ))}
+          </ScrollAnimationWrapper>
+        )) : (
+          <ScrollAnimationWrapper animation="fade-up">
+            <div className="text-center py-16">
+              <p className="text-slate/70">No projects match your current filters.</p>
+              <AnimatedButton 
+                onClick={resetFilters}
+                variant="outline"
+                size="sm"
+                className="mt-4"
+              >
+                Reset Filters
+              </AnimatedButton>
+            </div>
+          </ScrollAnimationWrapper>
+        )}
       </div>
     </section>
   );

@@ -2,46 +2,14 @@
 import React from 'react';
 import { GraduationCap, Calendar, School, Award } from 'lucide-react';
 import SectionAnimation from '@/components/animations/SectionAnimation';
+import ScrollAnimationWrapper from '@/components/animations/ScrollAnimationWrapper';
 import AnimatedText from '@/components/ui/AnimatedText';
 import AnimatedCard from '@/components/ui/AnimatedCard';
 import DynamicBackground from '@/components/ui/DynamicBackground';
-
-interface Education {
-  degree: string;
-  institution: string;
-  period: string;
-  description: string;
-}
+import { educations } from '@/data/Education';
 
 const Education = () => {
-  const educations: Education[] = [
-    {
-      degree: "Bachelor of Technology in Computer Science",
-      institution: "Jawaharlal Nehru Technological University",
-      period: "2017 - 2021",
-      description: "Graduated with distinction (8.9 CGPA). Specialized in Web Technologies and Data Structures. Completed thesis on 'Modern Web Application Architecture for Scalable Systems'."
-    },
-    {
-      degree: "Advanced Full-Stack Web Development",
-      institution: "Udacity Nanodegree Program",
-      period: "2022",
-      description: "Completed intensive program focused on modern JavaScript frameworks, server-side development, and cloud deployment. Developed a full-stack e-commerce platform as capstone project."
-    },
-    {
-      degree: "UI/UX Design Certification",
-      institution: "Interaction Design Foundation",
-      period: "2021",
-      description: "Comprehensive certification in user experience design principles, interaction design, and usability testing. Created multiple design systems and prototypes for web and mobile applications."
-    },
-    {
-      degree: "Data Structures and Algorithms Specialization",
-      institution: "Coursera (UC San Diego)",
-      period: "2020",
-      description: "Completed 6-course specialization covering fundamental data structures, algorithmic techniques, and their applications in software development. Achieved top 5% in peer assessments."
-    }
-  ];
-
-  // No animation refs or effects needed anymore
+  // Using education data from Education.ts file
 
   return (
     <section id="education" className="section-container relative overflow-hidden">
@@ -52,14 +20,14 @@ const Education = () => {
         <div className="absolute top-1/2 right-20 w-64 h-64 bg-highlight/15 rounded-full filter blur-3xl"></div>
       </div>
       
-      <SectionAnimation animation="fade-up">  
+      <ScrollAnimationWrapper animation="fade-up">  
         <AnimatedText effect="gradient" as="h2" className="section-title">
           <span className="text-highlight font-mono mr-2">Education</span> 
         </AnimatedText>
-      </SectionAnimation>
+      </ScrollAnimationWrapper>
 
       <div className="max-w-3xl mx-auto">
-        <SectionAnimation animation="fade-up" delay={200}>
+        <ScrollAnimationWrapper animation="fade-up" delay={200}>
           <div className="flex items-center mb-8 text-slate-light">
             <div className="p-2 rounded-full bg-highlight/10 mr-3">
               <GraduationCap className="w-6 h-6 text-highlight" />
@@ -68,12 +36,12 @@ const Education = () => {
               Educational Background
             </AnimatedText>
           </div>
-        </SectionAnimation>
+        </ScrollAnimationWrapper>
         
         <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-highlight/30 before:to-transparent">
           {educations.map((edu, index) => (
-            <SectionAnimation 
-              key={index} 
+            <ScrollAnimationWrapper 
+              key={edu.id} 
               animation="fade-up" 
               delay={400 + (index * 200)}
               className="relative flex items-start md:items-center group"
@@ -108,7 +76,7 @@ const Education = () => {
                   </div>
                 </AnimatedCard>
               </div>
-            </SectionAnimation>
+            </ScrollAnimationWrapper>
           ))}
         </div>
       </div>

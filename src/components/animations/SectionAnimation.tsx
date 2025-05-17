@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState, ReactNode } from 'react';
+import React, { ReactNode } from 'react';
+import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 interface SectionAnimationProps {
   children: ReactNode;
@@ -21,42 +22,11 @@ const SectionAnimation: React.FC<SectionAnimationProps> = ({
   fallbackTimeout = 800,
   smoothScroll = true,
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Fallback timeout to ensure content becomes visible even if IntersectionObserver fails
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, fallbackTimeout);
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            // Add delay if specified
-            if (delay) {
-              setTimeout(() => setIsVisible(true), delay);
-            } else {
-              setIsVisible(true);
-            }
-          }
-        });
-      },
-      { threshold, rootMargin }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => {
-      clearTimeout(timer);
-      if (ref.current) {
-        observer.unobserve(ref.current);
-      }
-    };
-  }, [delay, threshold, rootMargin, fallbackTimeout]);
+  const [ref, isVisible] = useScrollAnimation({
+    threshold,
+    rootMargin,
+    triggerOnce: true
+  });
 
   // Animation classes based on type
   const getAnimationClasses = () => {
