@@ -93,10 +93,12 @@ const Navbar = () => {
                   to={item.to}
                   spy={true}
                   smooth={true}
-                  offset={-100}
+                  offset={-80}
                   duration={500}
-                  activeClass="active"
+                  activeClass="nav-active"
                   className="nav-link text-sm group flex items-center"
+                  hashSpy={true}
+                  spyThrottle={500}
                 >
                   <span className="text-accent font-mono mr-1 transition-transform duration-300 group-hover:translate-y-[-2px]"></span>
                   <span className="relative">
@@ -142,7 +144,7 @@ const Navbar = () => {
                     smooth={true}
                     offset={-100}
                     duration={500}
-                    activeClass="active"
+                    activeClass="nav-active"
                     className="nav-link text-lg inline-flex items-center justify-center py-2 group"
                     onClick={toggleMenu}
                   >

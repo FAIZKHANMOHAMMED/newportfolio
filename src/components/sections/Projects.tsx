@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ExternalLink, Github, Filter } from 'lucide-react';
+import { ExternalLink, Github, Filter, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import ScrollAnimationWrapper from '@/components/animations/ScrollAnimationWrapper';
 import AnimatedCard from '@/components/ui/AnimatedCard';
 import AnimatedButton from '@/components/ui/AnimatedButton';
@@ -13,6 +13,10 @@ const Projects = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showFilters, setShowFilters] = useState(false);
   
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const projectsPerPage = 5;
+  
   // Get all available years and categories for filters
   const years = getAllYears();
   const categories = getAllCategories();
@@ -23,6 +27,17 @@ const Projects = () => {
     const categoryMatch = selectedCategory ? project.category === selectedCategory : true;
     return yearMatch && categoryMatch;
   });
+  
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredProjects.length / projectsPerPage);
+  const indexOfLastProject = currentPage * projectsPerPage;
+  const indexOfFirstProject = indexOfLastProject - projectsPerPage;
+  const currentProjects = filteredProjects.slice(indexOfFirstProject, indexOfLastProject);
+  
+  // Reset to first page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedYear, selectedCategory]);
 
   // State for reveal animations
   const [revealed, setRevealed] = useState(false);
@@ -31,6 +46,15 @@ const Projects = () => {
   const resetFilters = () => {
     setSelectedYear(null);
     setSelectedCategory(null);
+  };
+  
+  // Pagination controls
+  const goToNextPage = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  };
+  
+  const goToPrevPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1));
   };
   
   // Trigger reveal animation when component mounts
@@ -45,18 +69,27 @@ const Projects = () => {
   return (
     <section id="projects" className="section-container relative overflow-hidden">
       <DynamicBackground variant="gradient" intensity="medium" color="accent-purple" />
+      
+      {/* Background elements */}
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-60 left-10 w-80 h-80 bg-accent-purple/30 rounded-full filter blur-3xl animate-float"></div>
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-accent-pink/25 rounded-full filter blur-3xl animate-pulse-slow"></div>
-        <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-highlight/20 rounded-full filter blur-3xl"></div>
+        <div className="absolute top-40 left-10 w-80 h-80 bg-accent-purple/20 rounded-full filter blur-3xl animate-float"></div>
+        <div className="absolute bottom-20 right-10 w-72 h-72 bg-accent-pink/15 rounded-full filter blur-3xl animate-pulse-slow"></div>
+        <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-highlight/10 rounded-full filter blur-3xl"></div>
       </div>
       
       <ScrollAnimationWrapper animation="fade-up" threshold={0.1}>
-        <AnimatedText effect="gradient" as="h2" className="section-title">
-          <span className="text-highlight font-mono mr-2">Some Things I've Built</span> 
-        </AnimatedText>
+        {/* Section header */}
+        <div className="text-center mb-16">
+          <AnimatedText effect="gradient" as="h2" className="section-title mb-4">
+            <span className="text-highlight">Featured Projects</span>
+          </AnimatedText>
+          <p className="text-gray-700 dark:text-slate/80 max-w-2xl mx-auto">
+            A selection of my recent work, showcasing my skills and experience in building digital products and experiences.
+          </p>
+        </div>
         
-        <div className="flex flex-col items-center justify-center mt-8 mb-12">
+        {/* Filter controls */}
+        <div className="flex flex-wrap justify-center gap-3 mb-12">
           <AnimatedButton 
             onClick={() => setShowFilters(!showFilters)}
             variant="outline"
@@ -65,14 +98,25 @@ const Projects = () => {
             iconPosition="left"
             className="mb-4"
           >
-            {showFilters ? 'Hide Filters' : 'Show Filters'}
+            {showFilters ? 'Hide Filters' : 'Filter Projects'}
           </AnimatedButton>
           
+          {(selectedYear || selectedCategory) && (
+            <AnimatedButton 
+              onClick={resetFilters}
+              variant="ghost"
+              size="sm"
+              className="mb-4"
+            >
+              Clear Filters
+            </AnimatedButton>
+          )}
+          
           {showFilters && (
-            <div className="bg-navy-light/70 glass-effect p-6 rounded-lg w-full max-w-2xl mx-auto mb-4 animate-fadeIn">
+            <div className="w-full max-w-3xl mx-auto bg-navy-light/70 backdrop-blur-sm p-6 rounded-lg mb-8 animate-fadeIn">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h4 className="text-slate-light text-sm mb-2 font-medium">Filter by Year</h4>
+                  <h4 className="text-slate-light text-sm mb-3 font-medium">Filter by Year</h4>
                   <div className="flex flex-wrap gap-2">
                     {years.map(year => (
                       <button
@@ -80,7 +124,7 @@ const Projects = () => {
                         onClick={() => setSelectedYear(selectedYear === year ? null : year)}
                         className={`px-3 py-1 text-xs rounded-full transition-all ${selectedYear === year 
                           ? 'bg-highlight text-navy-dark font-medium' 
-                          : 'bg-navy-dark text-slate hover:bg-navy-dark/80'}`}
+                          : 'bg-navy-dark/60 text-slate hover:bg-navy-dark/80'}`}
                       >
                         {year}
                       </button>
@@ -89,7 +133,7 @@ const Projects = () => {
                 </div>
                 
                 <div>
-                  <h4 className="text-slate-light text-sm mb-2 font-medium">Filter by Category</h4>
+                  <h4 className="text-slate-light text-sm mb-3 font-medium">Filter by Category</h4>
                   <div className="flex flex-wrap gap-2">
                     {categories.map(category => (
                       <button
@@ -97,7 +141,7 @@ const Projects = () => {
                         onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
                         className={`px-3 py-1 text-xs rounded-full transition-all ${selectedCategory === category 
                           ? 'bg-highlight text-navy-dark font-medium' 
-                          : 'bg-navy-dark text-slate hover:bg-navy-dark/80'}`}
+                          : 'bg-navy-dark/60 text-slate hover:bg-navy-dark/80'}`}
                       >
                         {category}
                       </button>
@@ -105,185 +149,155 @@ const Projects = () => {
                   </div>
                 </div>
               </div>
-              
-              {(selectedYear || selectedCategory) && (
-                <button
-                  onClick={resetFilters}
-                  className="mt-4 text-xs text-highlight hover:text-highlight/80 underline underline-offset-2"
-                >
-                  Reset Filters
-                </button>
-              )}
             </div>
           )}
           
-          <div className="text-sm text-slate/70">
-            Showing {filteredProjects.length} {filteredProjects.length === 1 ? 'project' : 'projects'}
-            {selectedYear && ` from ${selectedYear}`}
-            {selectedCategory && ` in ${selectedCategory}`}
-          </div>
+          {(selectedYear || selectedCategory) && (
+            <div className="text-center text-sm text-gray-600 dark:text-slate/60 mt-6">
+              Showing {filteredProjects.length} {filteredProjects.length === 1 ? 'project' : 'projects'}
+              {selectedYear && ` from ${selectedYear}`}
+              {selectedCategory && ` in ${selectedCategory}`}
+            </div>
+          )}
         </div>
       </ScrollAnimationWrapper>
       
-      <div className="space-y-32">
-        {filteredProjects.length > 0 ? filteredProjects.map((project, index) => (
-          <ScrollAnimationWrapper 
-            key={index}
-            animation="fade-up"
-            delay={200 + (index * 150)}
-            threshold={0.15}
-            className="relative"
-          >
-            <div className={`grid md:grid-cols-12 gap-6 items-center hover-lift ${
-              index % 2 === 0 ? '' : 'md:text-right'
-            }`}>
-              {/* Project Image */}
-              <div 
-                className={`md:col-span-7 ${
-                  index % 2 === 0 ? 'md:col-start-6' : 'md:col-start-1 order-first'
-                }`}
-              >
-                <ScrollAnimationWrapper
-                  animation={index % 2 === 0 ? 'fade-left' : 'fade-right'}
-                  delay={300 + (index * 200)}
+      {/* Projects Display */}
+      <div className="mt-8 mb-16">
+        {filteredProjects.length > 0 ? (
+          <>
+            {/* Projects with alternating layout */}
+            <div className="space-y-24">
+              {currentProjects.map((project, index) => (
+                <ScrollAnimationWrapper 
+                  key={index}
+                  animation="fade-up"
+                  delay={200 + (index * 100)}
+                  threshold={0.1}
                 >
-                  <AnimatedCard className="relative overflow-hidden rounded-xl group shadow-md hover:shadow-xl transition-all duration-500" hoverEffect="scale">
-                    <div className="aspect-video relative overflow-hidden">
-                      <img 
-                        src={project.image} 
-                        alt={project.title} 
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 group-hover:rotate-1"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-tr from-navy/90 to-navy/70 group-hover:from-transparent group-hover:to-transparent transition-all duration-500"></div>
-                      
-                      {/* Animated border on hover */}
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                        <div className="absolute inset-0 border-2 border-highlight/0 group-hover:border-highlight/70 rounded-xl transform scale-90 group-hover:scale-95 transition-all duration-700 ease-out"></div>
+                  <div className={`flex flex-col ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} gap-8 items-center transition-all duration-500 hover:transform hover:scale-[1.02]`}>
+                    {/* Project image */}
+                    <div className="w-full md:w-3/5 relative group">
+                      <div className="relative overflow-hidden rounded-xl">
+                        <img 
+                          src={project.image} 
+                          alt={project.title} 
+                          className="w-full aspect-video object-cover transition-all duration-700 group-hover:scale-105 group-hover:saturate-[1.2]"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/60 via-navy-dark/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                       </div>
                       
-                      {/* Overlay with project links */}
-                      <div className="absolute inset-0 flex items-center justify-center gap-6 opacity-0 group-hover:opacity-100 transition-all duration-500 z-10">
-                        <a 
-                          href={project.github} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="bg-highlight/90 text-white p-3 rounded-full hover:bg-highlight transition-all duration-300 transform hover:scale-125 hover:-translate-y-2 hover:shadow-lg hover:shadow-highlight/30"
-                          aria-label={`GitHub repository for ${project.title}`}
-                        >
-                          <Github size={20} className="transform group-hover:animate-pulse-slow" />
-                        </a>
-                        {project.demo && (
-                          <a 
-                            href={project.demo} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="bg-highlight/90 text-white p-3 rounded-full hover:bg-highlight transition-all duration-300 transform hover:scale-125 hover:-translate-y-2 hover:shadow-lg hover:shadow-highlight/30"
-                            aria-label={`Live demo for ${project.title}`}
+                      {/* Floating tech badges */}
+                      <div className="absolute -bottom-3 left-4 right-4 flex flex-wrap justify-center gap-2">
+                        {project.tech.slice(0, 5).map((tech, i) => (
+                          <span 
+                            key={i} 
+                            className="px-3 py-1 bg-navy-dark/90 backdrop-blur-sm text-white text-xs rounded-full shadow-lg transform translate-y-3 opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500"
+                            style={{ transitionDelay: `${100 + (i * 50)}ms` }}
                           >
-                            <ExternalLink size={20} className="transform group-hover:animate-pulse-slow" />
-                          </a>
-                        )}
+                            {tech}
+                          </span>
+                        ))}
                       </div>
                     </div>
-                  </AnimatedCard>
+                    
+                    {/* Project content */}
+                    <div className="w-full md:w-2/5">
+                      <div className={`text-left ${index % 2 !== 0 ? 'md:text-right' : ''}`}>
+                        <p className="text-highlight text-sm mb-2 transition-all duration-300 group-hover:text-accent-purple">{project.category}</p>
+                        <h3 className="text-2xl font-bold text-slate-light dark:text-white mb-4 transition-all duration-300 group-hover:text-highlight">
+                          {project.title}
+                        </h3>
+                        
+                        <div className="bg-white/90 dark:bg-navy-light/40 backdrop-blur-sm p-6 rounded-xl shadow-lg mb-6 transition-all duration-500 hover:shadow-xl hover:bg-gray-50 dark:hover:bg-navy-light/50 border border-gray-100 dark:border-transparent">
+                          <p className="text-gray-700 dark:text-slate/90">
+                            {project.description}
+                          </p>
+                        </div>
+                        
+                        <div className={`flex gap-4 ${index % 2 !== 0 ? 'md:justify-end' : ''}`}>
+                          <AnimatedButton 
+                            href={project.github}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            variant="outline"
+                            size="sm"
+                            icon={<Github size={16} />}
+                            iconPosition="left"
+                          >
+                            Code
+                          </AnimatedButton>
+                          
+                          {project.demo && (
+                            <AnimatedButton 
+                              href={project.demo}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              variant="primary"
+                              size="sm"
+                              icon={<ExternalLink size={16} />}
+                              iconPosition="left"
+                            >
+                              Live Demo
+                            </AnimatedButton>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </ScrollAnimationWrapper>
-              </div>
-              
-              {/* Project Content */}
-              <div 
-                className={`md:col-span-6 relative z-10 ${
-                  index % 2 === 0 ? 'md:col-start-1 md:text-left' : 'md:col-start-7 md:text-right'
-                }`}
-              >
-                <ScrollAnimationWrapper
-                  animation="fade-up"
-                  delay={200 + (index * 150)}
-                >
-                  <p className="font-mono text-highlight text-sm mb-2">Featured Project</p>
-                  <h3 className="text-2xl font-bold text-slate-light mb-4">
-                    {project.title}
-                  </h3>
-                </ScrollAnimationWrapper>
-                
-                <ScrollAnimationWrapper
-                  animation="fade-up"
-                  delay={400 + (index * 150)}
-                >
-                  <AnimatedCard className="bg-navy-light/70 glass-effect mb-5 p-6" hoverEffect="glow">
-                    <p className="text-slate/90">{project.description}</p>
-                  </AnimatedCard>
-                </ScrollAnimationWrapper>
-                
-                <ScrollAnimationWrapper
-                  animation="fade-up"
-                  delay={500 + (index * 150)}
-                >
-                  <ul className={`flex flex-wrap text-xs font-mono mb-6 gap-3 text-slate ${
-                    index % 2 === 0 ? '' : 'md:justify-end'
-                  }`}>
-                    {project.tech.map((tech, i) => (
-                      <li 
-                        key={i} 
-                        className="bg-navy-dark px-3 py-1 rounded transform transition-all duration-500 ease-out"
-                        style={{
-                          opacity: revealed ? 1 : 0,
-                          transform: revealed ? 'scale(1)' : 'scale(0.9)',
-                          transitionDelay: `${600 + (index * 100) + (i * 50)}ms`
-                        }}
-                      >
-                        {tech}
-                      </li>
-                    ))}
-                  </ul>
-                </ScrollAnimationWrapper>
-                
-                <ScrollAnimationWrapper
-                  animation="fade-up"
-                  delay={600 + (index * 150)}
-                  className={`flex gap-4 ${
-                    index % 2 === 0 ? '' : 'md:justify-end'
-                  }`}
-                >
-                  <AnimatedButton 
-                    href={project.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    variant="ghost"
-                    size="sm"
-                    icon={<Github size={18} />}
-                    iconPosition="left"
-                    ariaLabel={`GitHub repository for ${project.title}`}
-                  >
-                    Code
-                  </AnimatedButton>
-                  
-                  {project.demo && (
-                    <AnimatedButton 
-                      href={project.demo}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      variant="ghost"
-                      size="sm"
-                      icon={<ExternalLink size={18} />}
-                      iconPosition="left"
-                      ariaLabel={`Live demo for ${project.title}`}
-                    >
-                      Demo
-                    </AnimatedButton>
-                  )}
-                </ScrollAnimationWrapper>
-              </div>
+              ))}
             </div>
-          </ScrollAnimationWrapper>
-        )) : (
+            
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2 mt-16">
+                {/* Previous button */}
+                <button
+                  onClick={goToPrevPage}
+                  disabled={currentPage === 1}
+                  className="px-3 py-2 rounded-md bg-gray-100 dark:bg-navy-light/30 text-gray-700 dark:text-slate-light disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:bg-gray-200 dark:hover:bg-navy-light/50 hover:shadow-md active:scale-95 border border-gray-200 dark:border-transparent"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                
+                {/* Page numbers */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
+                  <button
+                    key={number}
+                    onClick={() => setCurrentPage(number)}
+                    className={`w-8 h-8 rounded-md flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 ${currentPage === number ? 'bg-highlight text-gray-800 font-medium' : 'bg-gray-100 dark:bg-navy-light/30 text-gray-700 dark:text-slate-light hover:bg-gray-200 dark:hover:bg-navy-light/50 border border-gray-200 dark:border-transparent'}`}
+                  >
+                    {number}
+                  </button>
+                ))}
+                
+                {/* Next button */}
+                <button
+                  onClick={goToNextPage}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-2 rounded-md bg-gray-100 dark:bg-navy-light/30 text-gray-700 dark:text-slate-light disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:bg-gray-200 dark:hover:bg-navy-light/50 hover:shadow-md active:scale-95 border border-gray-200 dark:border-transparent"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+            )}
+            
+            {/* Projects count */}
+            <div className="text-center text-sm text-gray-600 dark:text-slate/60 mt-6">
+              Showing {indexOfFirstProject + 1}-{Math.min(indexOfLastProject, filteredProjects.length)} of {filteredProjects.length} projects
+              {selectedYear && ` from ${selectedYear}`}
+              {selectedCategory && ` in ${selectedCategory}`}
+            </div>
+          </>
+        ) : (
           <ScrollAnimationWrapper animation="fade-up">
-            <div className="text-center py-16">
-              <p className="text-slate/70">No projects match your current filters.</p>
+            <div className="text-center py-16 bg-white/80 dark:bg-navy-light/30 backdrop-blur-sm rounded-lg border border-gray-200 dark:border-slate/10 shadow-md">
+              <p className="text-gray-600 dark:text-slate/70 mb-4">No projects match your current filters.</p>
               <AnimatedButton 
                 onClick={resetFilters}
                 variant="outline"
                 size="sm"
-                className="mt-4"
               >
                 Reset Filters
               </AnimatedButton>

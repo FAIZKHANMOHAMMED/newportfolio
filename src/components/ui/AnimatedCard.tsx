@@ -5,13 +5,17 @@ interface AnimatedCardProps {
   className?: string;
   hoverEffect?: 'lift' | 'glow' | 'border' | 'scale' | 'none';
   onClick?: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 const AnimatedCard: React.FC<AnimatedCardProps> = ({
   children,
   className = '',
   hoverEffect = 'lift',
-  onClick
+  onClick,
+  onMouseEnter,
+  onMouseLeave
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   
@@ -33,8 +37,14 @@ const AnimatedCard: React.FC<AnimatedCardProps> = ({
   return (
     <div 
       className={combinedStyles}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseEnter={() => {
+        setIsHovered(true);
+        if (onMouseEnter) onMouseEnter();
+      }}
+      onMouseLeave={() => {
+        setIsHovered(false);
+        if (onMouseLeave) onMouseLeave();
+      }}
       onClick={onClick}
     >
       {/* Optional glow effect */}
